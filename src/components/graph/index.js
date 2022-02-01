@@ -6,7 +6,9 @@ Chart.register(...registerables);
 
 const GraphComponent = (props) => {
 
-    const canvas = useRef();
+    const { data } = props;
+
+    const canvas = useRef(null);
     const [chart, setChart] = useState(null);
 
     useEffect(() => {

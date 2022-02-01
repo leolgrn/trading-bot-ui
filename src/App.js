@@ -1,9 +1,12 @@
-import GraphComponent from "./components/graph";
-import React from "react";
+import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
 
 function App() {
   return (
-      <GraphComponent />
+      <Router>
+        <Switch>
+            <Route path="/backtesting" render={Backtesting} />
+        </Switch>
+      </Router>
   );
 }
 
