@@ -1,5 +1,18 @@
 .canvas-container, .canvas-container > canvas {
     display: flex;
-    width: 100%!important;
-    height: 100%!important;
+    width: calc(100% - 50px)!important;
+    height: calc(100% - 50px)!important;
+}
+
+.canvas-no-data {
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvas-no-data > span {
+    color: #ffffff;
 }

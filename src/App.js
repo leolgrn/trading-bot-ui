@@ -1,11 +1,12 @@
-import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import {Backtesting} from "./pages";
 
 function App() {
   return (
       <Router>
-        <Switch>
-            <Route path="/backtesting" render={Backtesting} />
-        </Switch>
+        <Routes>
+            <Route exact path="/" element={<Backtesting />} />
+        </Routes>
       </Router>
   );
 }
