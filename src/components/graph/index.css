@@ -2,6 +2,7 @@
     display: flex;
     width: calc(100% - 50px)!important;
     height: calc(100% - 50px)!important;
+    justify-content: center;
 }
 
 .canvas-no-data {
@@ -15,4 +16,14 @@
 
 .canvas-no-data > span {
     color: #ffffff;
+}
+
+
+@media (max-width: 800px) {
+    .canvas-container, .canvas-container > canvas {
+        height: 500px!important;
+        width: calc(100% - 10px)!important;
+        /*:height: calc(100% - 10px)!important;*/
+    }
+
 }

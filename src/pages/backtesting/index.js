@@ -1,6 +1,7 @@
 import { GraphComponent } from "../../components";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import apiService from "../../services/api.service";
+import moment from "moment";
 
 import "./index.css";
 
@@ -10,14 +11,14 @@ const BacktestingPage = (props) => {
     // eslint-disable-next-line
     const [error, setError] = useState(null);
 
-    const [startDate, setStartDate] = useState("01-01-2022");
-    const [endDate, setEndDate] = useState("01-02-2022");
+    const [startDate, setStartDate] = useState(moment().subtract(6, "months").format("DD-MM-YYYY"));
+    const [endDate, setEndDate] = useState(moment().format("DD-MM-YYYY"));
     const [symbol, setSymbol] = useState("ETH");
-    const [type, setType] = useState("sma");
-    const [unit, setUnit] = useState("day");
-    const [period1, setPeriod1] = useState(7);
-    const [period2, setPeriod2] = useState(25);
-    const [period3, setPeriod3] = useState(99);
+    const [type, setType] = useState("EMA");
+    const [unit, setUnit] = useState("hour");
+    const [period1, setPeriod1] = useState(20); //7
+    const [period2, setPeriod2] = useState(50); //25
+    const [period3, setPeriod3] = useState(200); //99
 
     const applyChanges = useCallback(() => {
         if(
@@ -32,6 +33,10 @@ const BacktestingPage = (props) => {
                 .catch(setError);
         }
     }, [startDate, endDate, symbol, type, unit, period1, period2, period3])
+
+    useEffect(() => {
+        applyChanges();
+    }, [])
 
     return (
         <div className={"backtesting-container"}>

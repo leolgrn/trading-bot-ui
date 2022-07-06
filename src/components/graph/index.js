@@ -1,9 +1,10 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import { Chart, registerables } from 'chart.js';
-import randomColor from "randomcolor"
+import annotationPlugin from "chartjs-plugin-annotation";
 import "./index.css";
 
 Chart.register(...registerables);
+Chart.register(annotationPlugin);
 
 const GraphComponent = (props) => {
 
@@ -13,10 +14,14 @@ const GraphComponent = (props) => {
     const [needUpdate, setNeedUpdate] = useState(false);
     const [chart, setChart] = useState(null);
 
+    const onlyCloseAndStrategies = (indicator) => {
+        return indicator.name !== "open" && indicator.name !== "high" && indicator.name !== "low";
+    }
+
     const getData = useCallback(() => {
         return {
             labels: data["time"],
-            datasets: data["indicators"].map(indicator => {
+            datasets: data["indicators"].filter(onlyCloseAndStrategies).map(indicator => {
                 return {
                     label: indicator["name"],
                     data: indicator["values"],
@@ -29,23 +34,29 @@ const GraphComponent = (props) => {
     }, [data])
 
     const getAnnotations = useCallback(() => {
-        return data.report["transactions"].map(transaction => {
-            return {
+        let annotations = [];
+        for(let i = 0; i < data.report["transactions"].length; i += 2){
+            if(i === data.report["transactions"].length - 1){
+                console.log("last is buy");
+                return annotations;
+            }
+            annotations.push({
                 type: 'box',
                 drawTime: "beforeDatasetsDraw",
-                xMin: transaction["buy"]["date"],
-                xMax: transaction["sell"]["date"],
-                xScaleID: 'x-axis-0',
-                backgroundColor: transaction["sell"]["cash"] >= 0 ? "rgba(64, 251, 151, 0.2)" : "rgba(245, 71, 59, 0.2)",
+                xMin:  data.report["transactions"][i]["buy"]["date"],
+                xMax:  data.report["transactions"][i+1]["sell"]["date"],
+                backgroundColor: data.report["transactions"][i+1]["sell"]["cash"] - data.report["transactions"][i]["buy"]["cash"] >= 0 ? "rgba(64, 251, 151, 0.2)" : "rgba(245, 71, 59, 0.2)",
                 borderColor: "rgba(255, 255, 255, 0)"
-            }
-        })
+            })
+        }
+        return annotations;
     }, [data])
 
     useEffect(() => {
         if(data !== null) {
             if(needUpdate){
                 chart.data = getData()
+                chart.options.plugins.annotation.annotations = getAnnotations()
                 chart.update()
             } else {
                 const context = canvas.current.getContext('2d');
@@ -55,27 +66,50 @@ const GraphComponent = (props) => {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        animation: false,
+                        normalized: true,
                         plugins: {
                             tooltip: {
                                 mode: 'index',
-                                intersect: false
+                                intersect: false,
+                                backgroundColor: "rgba(0, 0, 0, 1)",
+                                titleFont: {
+                                    size: 15
+                                },
+                                bodyFont: {
+                                    size: 15,
+                                    lineHeight: 1.5,
+                                    weight: "bold"
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            annotation: {
+                                annotations: getAnnotations()
                             }
+                                
                         },
                         hover: {
                             mode: 'index',
                             intersect: false
                         },
-                        annotation: {
-                            drawTime: 'afterDatasetsDraw',
-                            annotations: getAnnotations()
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    stepSize: 20
-                                }
-                            }
-                        }
+                        // scales: {
+                        //     y: {
+                        //         ticks: {
+                        //             stepSize: 1000
+                        //         }
+                        //     },
+                        //     x: {
+                        //         time: {
+                        //             stepSize: 1000
+                        //         },
+                        //         grid: {
+                        //             display:false,
+                        //             drawBorder: false
+                        //         }
+                        //     }
+                        // }
                     }
                 }));
                 setNeedUpdate(true)
